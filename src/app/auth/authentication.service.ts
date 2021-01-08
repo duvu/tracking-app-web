@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { Observable, of } from 'rxjs';
 
 import { Credentials, CredentialsService } from './credentials.service';
+import { HttpClient } from '@angular/common/http';
 
 export interface LoginContext {
   username: string;
@@ -17,7 +18,7 @@ export interface LoginContext {
   providedIn: 'root',
 })
 export class AuthenticationService {
-  constructor(private credentialsService: CredentialsService) {}
+  constructor(private credentialsService: CredentialsService, private http: HttpClient) {}
 
   /**
    * Authenticates the user.
@@ -31,7 +32,8 @@ export class AuthenticationService {
       token: '123456',
     };
     this.credentialsService.setCredentials(data, context.remember);
-    return of(data);
+    return this.http.post<Credentials>('/authenticate', context);
+    // return of(data);
   }
 
   /**
@@ -40,6 +42,7 @@ export class AuthenticationService {
    */
   logout(): Observable<boolean> {
     // Customize credentials invalidation here
+    this.http.post('/auth/logout', null);
     this.credentialsService.setCredentials();
     return of(true);
   }
